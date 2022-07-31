@@ -1,11 +1,13 @@
 import { galleryItems } from "./gallery-items.js";
-
 const containerGallaryDivRef = document.querySelector(".gallery");
 const marcupRef = createGellery(galleryItems);
 containerGallaryDivRef.insertAdjacentHTML("beforeend", marcupRef);
-
-function createGellery(event) {
-  return event
+containerGallaryDivRef.addEventListener("click", createImgBasicLightbox);
+let srcImgEl;
+let createImgModal;
+//
+function createGellery(e) {
+  return e
     .map(({ preview, original, description }) => {
       return `<div class="gallery__item">
         <a class="gallery__link" href="${original}">
@@ -22,17 +24,27 @@ function createGellery(event) {
     })
     .join("");
 }
-containerGallaryDivRef.addEventListener("click", (event) => {
-  event.preventDefault();
-  const srcImgEl = event.target.dataset.source;
-  const addBasicLightboxImg = basicLightbox.create(`
-    <img src="${srcImgEl}" width="800" height="600">
-`);
-
-  addBasicLightboxImg.show();
-});
-containerGallaryDivRef.addEventListener("keydown", (event) => {
-  if (event.code === "Escape") {
-    document.querySelector("div.basicLightbox").remove("");
+const settingsLigtBox = {
+  onShow: () => {
+    document.addEventListener("keydown", keyDowEsc);
+  },
+  onClose: () => {
+    document.removeEventListener("keydown", keyDowEsc);
+  },
+};
+//
+function createImgBasicLightbox(e) {
+  e.preventDefault();
+  srcImgEl = e.target.dataset.source;
+  createImgModal = basicLightbox.create(
+    `<img src="${srcImgEl}" width="800" height="600">`,
+    settingsLigtBox
+  );
+  createImgModal.show();
+}
+//
+function keyDowEsc(e) {
+  if (e.code === "Escape" && createImgModal.visible()) {
+    createImgModal.close();
   }
-});
+}
